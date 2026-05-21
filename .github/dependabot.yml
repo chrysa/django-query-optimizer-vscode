@@ -1,0 +1,63 @@
+version: 2
+updates:
+- package-ecosystem: github-actions
+  directory: .github/workflows/
+  assignees:
+  - chrysa
+  reviewers:
+  - chrysa
+  open-pull-requests-limit: 8
+  commit-message:
+    prefix: '[SKIP CI] [GA] '
+  labels:
+  - skip-ci
+  - dependencies
+  - Ci
+  schedule:
+    cronjob: 0 4 * * 5
+    interval: cron
+  cooldown:
+    default-days: 7
+  groups:
+    actions-official:
+      patterns:
+      - actions/*
+    peter-evans:
+      patterns:
+      - peter-evans/*
+    community-actions:
+      patterns:
+      - '*'
+
+- package-ecosystem: npm
+  directory: /
+  assignees:
+  - chrysa
+  reviewers:
+  - chrysa
+  open-pull-requests-limit: 10
+  commit-message:
+    prefix: '[npm] '
+  labels:
+  - dependencies
+  - JavaScript
+  schedule:
+    cronjob: 0 4 * * 5
+    interval: cron
+  cooldown:
+    default-days: 7
+  groups:
+    react-ecosystem:
+      patterns:
+      - react
+      - react-*
+      - '@types/react*'
+    testing:
+      patterns:
+      - vitest
+      - '@testing-library/*'
+    build-tools:
+      patterns:
+      - vite
+      - typescript
+
