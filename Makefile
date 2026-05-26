@@ -26,3 +26,14 @@ package: compile  ## Package the extension as a .vsix
 
 clean:  ## Remove compiled output
 	rm -rf out
+
+## Standard conformance targets
+.PHONY: format pre-commit build
+
+format:  ## Format TypeScript/JSON files with prettier
+	npx prettier --write 'src/**/*.ts' '**/*.json' 2>/dev/null || npm run format 2>/dev/null || echo "No format script configured"
+
+pre-commit:  ## Run pre-commit hooks on all files
+	pre-commit run --all-files
+
+build: package  ## Build the extension (alias for package)
