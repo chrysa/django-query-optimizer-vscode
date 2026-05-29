@@ -30,7 +30,7 @@ repos:
             args: [--strict, --force-scope, feat, fix, chore, docs, refactor, test, ci, build, perf]
 
     - repo: https://github.com/adrienverge/yamllint
-      rev: v1.35.1
+      rev: v1.38.0
       hooks:
           - id: yamllint
             args: [-d, '{extends: default, rules: {line-length: disable, document-start: disable}}']
