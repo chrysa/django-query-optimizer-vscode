@@ -73,8 +73,11 @@ jobs:
 
             - name: Generate changelog
               id: changelog
+              env:
+                  TAG_PREFIX: ${{ inputs.tag-prefix }}
+                  SEMVER: ${{ steps.gitversion.outputs.semVer }}
               run: |
-                  CURRENT_TAG="${{ inputs.tag-prefix }}${{ steps.gitversion.outputs.semVer }}"
+                  CURRENT_TAG="${TAG_PREFIX}${SEMVER}"
                   git cliff --output CHANGELOG_RELEASE.md --tag "$CURRENT_TAG" 2>/dev/null || \
                     git cliff --unreleased --output CHANGELOG_RELEASE.md
                   echo "version=$CURRENT_TAG" >> "$GITHUB_OUTPUT"
