@@ -15,6 +15,10 @@ repos:
           - id: mixed-line-ending
           - id: detect-private-key
 
+          - args:
+                - --branch
+                - main
+            id: no-commit-to-branch
     - repo: https://github.com/Yelp/detect-secrets
       rev: v1.5.0
       hooks:
@@ -42,7 +46,7 @@ repos:
             files: ^\.github/workflows/.*\.ya?ml$
 
     - repo: https://github.com/chrysa/pre-commit-tools
-      rev: v0.1.1-92
+      rev: v0.1.1-93
       hooks:
           - id: adr-gate
           - id: console-log-detection
@@ -51,3 +55,23 @@ repos:
           - id: ts-unreachable-code
           - id: regression-gate
             stages: [pre-push]
+          - exclude: ^(\.github/|workflows/|templates/)
+            id: yaml-sorter
+          - id: json-sorter
+          - id: env-file-check
+          - id: env-example-sync
+          - id: react-console-error-detection
+          - id: import-no-relative-parent
+  # --- react (React repos only — remove if not applicable) ---
+    - repo: https://github.com/igorshubovych/markdownlint-cli
+      rev: v0.48.0
+      hooks:
+          - args:
+                - --fix
+            id: markdownlint
+            stages:
+                - manual
+    - repo: https://github.com/gitleaks/gitleaks
+      rev: v8.30.0
+      hooks:
+          - id: gitleaks
