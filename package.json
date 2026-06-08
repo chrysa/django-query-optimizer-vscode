@@ -62,7 +62,7 @@
     "sarif"
   ],
   "license": "MIT",
-  "main": "./out/extension.js",
+  "main": "./out/src/extension.js",
   "name": "django-query-optimizer",
   "publisher": "chrysa",
   "repository": {
