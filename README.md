@@ -1,51 +1,37 @@
-# django-query-optimizer — VS Code Extension
+# Django Query Optimizer — VS Code Extension
 
 ![VS Code](https://img.shields.io/badge/VS%20Code-1.90%2B-blue)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.5%2B-blue)
 ![License](https://img.shields.io/badge/license-MIT-lightgrey)
 ![Status](https://img.shields.io/badge/status-pre--alpha-orange)
 
-VS Code extension that surfaces ORM diagnostics produced by
+See Django ORM performance problems — N+1 queries, missing `select_related`/`prefetch_related`, and other inefficiencies — as inline squiggles and Problems-panel entries, right where the code lives. No leaving your editor to read a report.
+
+It surfaces findings from the
 [django-query-optimizer](https://github.com/chrysa/django-query-optimizer)
-directly in the editor — as inline squiggles and Problems panel entries.
+pytest plugin, which emits a standard SARIF file when your tests run.
 
----
+> **Status: pre-alpha (v0.1.0).** Not yet on the VS Code Marketplace — install from source (see below).
 
-## How it works
+## Who it's for
 
-1. Run your test suite with `--query-analysis --sarif-output`:
+Django developers who run their test suite with `django-query-optimizer` and want its ORM findings to appear directly in VS Code instead of in a separate report.
 
-   ```bash
-   pytest --query-analysis --sarif-output query-results.sarif
-   ```
+## Features
 
-2. The extension detects the `.sarif` file, parses it, and publishes
-   a `DiagnosticCollection` for every affected source file.
-3. The Problems panel and inline squiggles update automatically whenever
-   the file changes (e.g. on the next test run).
-
-```
-pytest run
-   └─ writes query-results.sarif (SARIF 2.1.0)
-         └─ FileSystemWatcher detects change
-               └─ parseSarif() → DiagnosticCollection
-                     └─ VS Code Problems panel + inline squiggles
-```
-
----
+- **Inline diagnostics** — ORM findings show up as squiggles on the exact line, plus entries in the Problems panel.
+- **Auto-refresh** — diagnostics update automatically the next time your tests regenerate the SARIF file. No manual reload needed.
+- **Severity mapping** — SARIF levels map to native VS Code severities, so the worst problems stand out (see table below).
+- **Zero config to start** — point it at a Django project with a `.sarif` file and it just works; tune the file pattern only if you need to.
 
 ## Requirements
 
 - VS Code **1.90** or later
-- [django-query-optimizer](https://github.com/chrysa/django-query-optimizer) **0.1.0+**
-  installed in your project's virtualenv
-
----
+- [django-query-optimizer](https://github.com/chrysa/django-query-optimizer) **0.1.0+** installed in your project's virtualenv
 
 ## Installation
 
-> The extension is not yet published to the VS Code Marketplace.
-> Install from source until the first release.
+The extension is not yet published to the Marketplace. Install from source:
 
 ```bash
 git clone https://github.com/chrysa/django-query-optimizer-vscode
@@ -55,39 +41,28 @@ make package    # produces django-query-optimizer-<version>.vsix
 code --install-extension django-query-optimizer-0.1.0.vsix
 ```
 
----
+## Usage
 
-## Configuration
+1. Run your test suite to produce a SARIF report:
 
-All settings are under the `djangoQueryOptimizer` namespace:
+   ```bash
+   pytest --query-analysis --sarif-output query-results.sarif
+   ```
 
-| Setting | Type | Default | Description |
-|---|---|---|---|
-| `djangoQueryOptimizer.enabled` | boolean | `true` | Enable / disable the extension entirely |
-| `djangoQueryOptimizer.sarifPattern` | string | `**/*.sarif` | Glob pattern for SARIF files to watch |
+2. Open the Django project in VS Code. The extension activates automatically when the workspace contains a `.sarif` file, parses it, and publishes diagnostics for every affected source file.
 
-Example `.vscode/settings.json`:
+3. Findings appear as inline squiggles and in the Problems panel. They refresh on their own each time a test run rewrites the SARIF file.
 
-```json
-{
-  "djangoQueryOptimizer.sarifPattern": "reports/**/*.sarif"
-}
-```
+### Commands
 
----
+Run these from the Command Palette (`Ctrl+Shift+P` / `Cmd+Shift+P`):
 
-## Commands
-
-| Command | ID | Description |
+| Command | ID | What it does |
 |---|---|---|
-| **Reload SARIF files** | `djangoQueryOptimizer.reload` | Re-scan workspace for SARIF files and refresh diagnostics |
-| **Clear diagnostics** | `djangoQueryOptimizer.clear` | Remove all diagnostics from the Problems panel |
+| **Django Query Optimizer: Reload SARIF files** | `djangoQueryOptimizer.reload` | Re-scan the workspace and refresh diagnostics |
+| **Django Query Optimizer: Clear all diagnostics** | `djangoQueryOptimizer.clear` | Remove all diagnostics from the Problems panel |
 
-Access via the Command Palette (`Ctrl+Shift+P` / `Cmd+Shift+P`).
-
----
-
-## Diagnostic severity mapping
+### Severity mapping
 
 | SARIF level | VS Code severity |
 |---|---|
@@ -96,11 +71,36 @@ Access via the Command Palette (`Ctrl+Shift+P` / `Cmd+Shift+P`).
 | `note` | Information (blue) |
 | `none` / unknown | Hint (grey) |
 
----
+## Configuration
+
+All settings live under the `djangoQueryOptimizer` namespace:
+
+| Setting | Type | Default | Description |
+|---|---|---|---|
+| `djangoQueryOptimizer.enabled` | boolean | `true` | Enable / disable the extension entirely |
+| `djangoQueryOptimizer.sarifPattern` | string | `**/*.sarif` | Glob pattern for SARIF files to watch (relative to workspace root) |
+
+Example `.vscode/settings.json` — watch only a `reports/` folder:
+
+```json
+{
+  "djangoQueryOptimizer.sarifPattern": "reports/**/*.sarif"
+}
+```
+
+## How it works
+
+```
+pytest run
+   └─ writes query-results.sarif (SARIF 2.1.0)
+         └─ FileSystemWatcher detects change
+               └─ parseSarif() → DiagnosticCollection
+                     └─ VS Code Problems panel + inline squiggles
+```
 
 ## Development
 
-**Prerequisites:** Node.js 22, VS Code
+See [CONTRIBUTING.md](CONTRIBUTING.md) for the full setup. Quick reference:
 
 ```bash
 make install     # npm ci
@@ -111,57 +111,12 @@ make test        # @vscode/test-electron (headless via xvfb)
 make package     # vsce package → .vsix
 ```
 
-**Running in development:**
-
-1. Open the repo in VS Code.
-2. Press `F5` — launches an Extension Development Host window.
-3. Open a Django project that has a `.sarif` file in the workspace.
-
-**Project layout:**
-
-```
-src/
-└── extension.ts       # Entry point — activate() / deactivate()
-                       # parseSarif()       pure SARIF → ParsedFinding[]
-                       # DiagnosticsHub     owns DiagnosticCollection
-                       # QueryOptimizerStatusBar  status bar item
-                       # SarifWatcher       FileSystemWatcher wrapper
-test/
-├── runTest.ts         # @vscode/test-electron runner
-└── unit/
-    └── parseSarif.test.ts  # 14 unit tests (no VS Code runtime)
-```
-
-**Adding a test:**
-
-Tests in `test/unit/` run with mocha and do **not** require a live VS Code
-instance — `parseSarif()` is a pure function. Add test cases in `parseSarif.test.ts`
-using the existing SARIF fixture pattern.
-
----
-
-## Architecture notes
-
-`parseSarif(json, sarifFilePath, workspaceRoot)` is the core function. It:
-
-- Iterates over all `runs` in the SARIF document
-- Resolves `uriBaseId` values:
-  - `%SRCROOT%` → workspace root (absolute)
-  - Named base IDs from `originalUriBaseIds` → their `uri` value
-  - Relative URIs without a base ID → resolved from the SARIF file directory
-  - Absolute `file://` URIs → used as-is
-- Converts SARIF `level` to `vscode.DiagnosticSeverity`
-- Maps 1-based SARIF line/column numbers to 0-based VS Code `Range`
-- Falls back to a range pointing at the SARIF file itself when no location is present
-
----
+Press `F5` in VS Code to launch an Extension Development Host, then open a Django project containing a `.sarif` file.
 
 ## Related
 
-- [django-query-optimizer](https://github.com/chrysa/django-query-optimizer) — the Python library and pytest plugin
+- [django-query-optimizer](https://github.com/chrysa/django-query-optimizer) — the Python library and pytest plugin that produces the reports
 - [SARIF 2.1.0 spec](https://docs.oasis-open.org/sarif/sarif/v2.1.0/sarif-v2.1.0.html)
-
----
 
 ## License
 
