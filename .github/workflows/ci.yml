@@ -38,7 +38,7 @@ jobs:
       - name: Compile
         run: npm run compile
 
-      - name: Test (headless)
+      - name: Test + coverage (headless)
         uses: coactions/setup-xvfb@v1
         with:
-          run: npm test
+          run: npm run coverage
