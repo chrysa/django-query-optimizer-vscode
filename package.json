@@ -1,36 +1,12 @@
 {
-  "name": "django-query-optimizer",
-  "displayName": "Django Query Optimizer",
-  "description": "Displays ORM optimization findings from django-query-optimizer SARIF reports as VS Code diagnostics.",
-  "version": "0.1.0",
-  "publisher": "chrysa",
-  "engines": { "vscode": "^1.90.0" },
-  "categories": ["Linters", "Other"],
-  "keywords": ["django", "orm", "query", "n+1", "performance", "sarif"],
-  "icon": "media/icon.png",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/chrysa/django-query-optimizer-vscode"
-  },
-  "license": "MIT",
-  "activationEvents": ["workspaceContains:**/*.sarif"],
-  "main": "./out/extension.js",
+  "activationEvents": [
+    "workspaceContains:**/*.sarif"
+  ],
+  "categories": [
+    "Linters",
+    "Other"
+  ],
   "contributes": {
-    "configuration": {
-      "title": "Django Query Optimizer",
-      "properties": {
-        "djangoQueryOptimizer.sarifPattern": {
-          "type": "string",
-          "default": "**/*.sarif",
-          "description": "Glob pattern for SARIF files to watch (relative to workspace root)."
-        },
-        "djangoQueryOptimizer.enabled": {
-          "type": "boolean",
-          "default": true,
-          "description": "Enable/disable the Django Query Optimizer extension."
-        }
-      }
-    },
     "commands": [
       {
         "command": "djangoQueryOptimizer.reload",
@@ -40,18 +16,24 @@
         "command": "djangoQueryOptimizer.clear",
         "title": "Django Query Optimizer: Clear all diagnostics"
       }
-    ]
+    ],
+    "configuration": {
+      "properties": {
+        "djangoQueryOptimizer.enabled": {
+          "default": true,
+          "description": "Enable/disable the Django Query Optimizer extension.",
+          "type": "boolean"
+        },
+        "djangoQueryOptimizer.sarifPattern": {
+          "default": "**/*.sarif",
+          "description": "Glob pattern for SARIF files to watch (relative to workspace root).",
+          "type": "string"
+        }
+      },
+      "title": "Django Query Optimizer"
+    }
   },
-  "scripts": {
-    "vscode:prepublish": "npm run compile",
-    "compile": "tsc -p ./",
-    "watch": "tsc -watch -p ./",
-    "pretest": "npm run compile",
-    "test": "node ./out/test/runTest.js",
-    "lint": "eslint src --ext ts",
-    "typecheck": "tsc --noEmit",
-    "package": "vsce package"
-  },
+  "description": "Displays ORM optimization findings from django-query-optimizer SARIF reports as VS Code diagnostics.",
   "devDependencies": {
     "@types/mocha": "^10.0.10",
     "@types/node": "^25.8.0",
@@ -63,5 +45,37 @@
     "eslint": "^10.3.0",
     "mocha": "^11.7.5",
     "typescript": "^6.0.3"
-  }
+  },
+  "displayName": "Django Query Optimizer",
+  "engines": {
+    "vscode": "^1.90.0"
+  },
+  "icon": "media/icon.png",
+  "keywords": [
+    "django",
+    "orm",
+    "query",
+    "n+1",
+    "performance",
+    "sarif"
+  ],
+  "license": "MIT",
+  "main": "./out/extension.js",
+  "name": "django-query-optimizer",
+  "publisher": "chrysa",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/chrysa/django-query-optimizer-vscode"
+  },
+  "scripts": {
+    "compile": "tsc -p ./",
+    "lint": "eslint src",
+    "package": "vsce package",
+    "pretest": "npm run compile",
+    "test": "node ./out/test/runTest.js",
+    "typecheck": "tsc --noEmit",
+    "vscode:prepublish": "npm run compile",
+    "watch": "tsc -watch -p ./"
+  },
+  "version": "0.1.0"
 }
