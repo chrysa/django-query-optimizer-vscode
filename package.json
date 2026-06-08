@@ -40,8 +40,10 @@
     "@types/vscode": "^1.90.0",
     "@typescript-eslint/eslint-plugin": "^8.0.0",
     "@typescript-eslint/parser": "^8.0.0",
+    "@vscode/test-cli": "^0.0.11",
     "@vscode/test-electron": "^2.4.0",
     "@vscode/vsce": "^3.0.0",
+    "c8": "^10.1.3",
     "eslint": "^10.3.0",
     "mocha": "^11.7.5",
     "typescript": "^6.0.3"
@@ -60,7 +62,7 @@
     "sarif"
   ],
   "license": "MIT",
-  "main": "./out/extension.js",
+  "main": "./out/src/extension.js",
   "name": "django-query-optimizer",
   "publisher": "chrysa",
   "repository": {
@@ -69,10 +71,11 @@
   },
   "scripts": {
     "compile": "tsc -p ./",
+    "coverage": "vscode-test --coverage --coverage-reporter=lcovonly --coverage-reporter=text",
     "lint": "eslint src",
     "package": "vsce package",
     "pretest": "npm run compile",
-    "test": "node ./out/test/runTest.js",
+    "test": "vscode-test",
     "typecheck": "tsc --noEmit",
     "vscode:prepublish": "npm run compile",
     "watch": "tsc -watch -p ./"

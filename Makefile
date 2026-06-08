@@ -1,5 +1,5 @@
 # makefile-tier: infra
-.PHONY: help install compile watch lint typecheck test package clean build dev format pre-commit
+.PHONY: help install compile watch lint typecheck test package clean build dev format pre-commit quality-gate-verify
 
 help:  ## Show available targets
 	@grep -E '^[a-zA-Z_-]+:.*?##' $(MAKEFILE_LIST) | awk 'BEGIN{FS=":.*?## "}{printf "  \033[36m%-18s\033[0m %s\n",$$1,$$2}'
@@ -37,3 +37,9 @@ format: ## Auto-fix lint issues (ESLint)
 
 pre-commit: ## Run pre-commit hooks on all files
 	pre-commit run --all-files
+
+quality-gate-verify: lint typecheck compile  ## CI no-regression gate (display-free)
+	@# The headless test suite (npm run coverage) runs in the main CI job, which
+	@# provides xvfb. The no-regression gate job has no display, so it verifies the
+	@# display-free quality signals only: lint clean, types clean, build succeeds.
+	@echo "Quality gate verified: lint + typecheck + compile passed"
