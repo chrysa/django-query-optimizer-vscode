@@ -1,44 +1,89 @@
+---
+# Canonical CI workflow for Node.js / TypeScript projects (chrysa ecosystem).
+#
+# Usage: copy to .github/workflows/ci.yml. The applier
+# (scripts/apply-repo-standard.sh) substitutes the ${...} placeholders:
+#   src      source dir for sonar              (e.g. src)
+#   target    repo name                         (e.g. container-webview)
+#   chrysa_target  SonarCloud project key            (e.g. chrysa_container-webview)
+#
+# ⚠️ This file lives in workflows/ (NOT .github/workflows/) — it is a copy-to-use
+#    template, not a reusable `uses:` workflow.
+#
+# NOTE: Lint (eslint/tsc/pre-commit) does NOT run here. It lives in pre-commit
+#       (local) and is replayed in CI only at release time. This CI keeps only
+#       tests + sonar, to gate PRs without per-push lint billing (parity with
+#       ci-python.yml).
+#
+# Job names (test / sonar) are the branch-protection required status checks —
+# keep them stable across repos.
+#
+# The test job must produce coverage/lcov.info and upload it as the
+# `coverage-lcov` artifact, which sonar-scan-node consumes.
+
 name: CI
 
 on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
+    pull_request:
+        branches: [main]
+    push:
+        branches:
+            - main
+            - "feat/**"
+            - "fix/**"
+            - "chore/**"
+            - "ci/**"
+    workflow_dispatch:
+
+permissions:
+    checks: write
+    contents: read
+    pull-requests: write
+    statuses: write
 
 concurrency:
-  group: ci-${{ github.ref }}
-  cancel-in-progress: true
+    group: ${{ github.workflow }}-${{ github.ref }}
+    cancel-in-progress: true
 
 jobs:
-  ci:
-    name: Lint, typecheck, test
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    permissions:
-      contents: read
+    test:
+        name: Tests
+        runs-on: ubuntu-latest
+        timeout-minutes: 20
+        steps:
+            - uses: actions/checkout@v6.0.2
+            - uses: actions/setup-node@v4
+              with:
+                  node-version: "22"
+                  cache: npm
+            - run: npm ci
+            - name: Run tests with coverage
+              run: npm run test:coverage
+            - name: Upload coverage
+              uses: actions/upload-artifact@v8
+              with:
+                  name: coverage-lcov
+                  path: coverage/lcov.info
+                  if-no-files-found: warn
 
-    steps:
-      - uses: actions/checkout@v6.0.3
-
-      - uses: actions/setup-node@v6
-        with:
-          node-version: "22"
-          cache: "npm"
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Typecheck
-        run: npm run typecheck
-
-      - name: Lint
-        run: npm run lint
-
-      - name: Compile
-        run: npm run compile
-
-      - name: Test + coverage (headless)
-        uses: coactions/setup-xvfb@v1
-        with:
-          run: npm run coverage
+    sonar:
+        name: SonarCloud
+        if: ${{ github.actor != 'dependabot[bot]' }}
+        needs: test
+        runs-on: ubuntu-latest
+        timeout-minutes: 15
+        permissions:
+            contents: read
+            pull-requests: read
+        steps:
+            - uses: actions/checkout@v6.0.2
+              with:
+                  fetch-depth: 0
+            - uses: chrysa/github-actions/sonar-scan-node@v1.0.12
+              with:
+                  sonar-token: ${{ secrets.SONAR_TOKEN }}
+                  github-token: ${{ secrets.GITHUB_TOKEN }}
+                  project-key: chrysa_target
+                  organization: chrysa
+                  project-name: target
+                  sources: src
