@@ -1,78 +1,103 @@
----
 repos:
-    - repo: https://github.com/pre-commit/pre-commit-hooks
-      rev: v6.0.0
-      hooks:
-          - id: trailing-whitespace
-          - id: end-of-file-fixer
-          - id: check-yaml
-          - id: check-json
-          - id: check-toml
-          - id: check-added-large-files
-            args: [--maxkb=1024]
-          - id: check-merge-conflict
-          - id: check-case-conflict
-          - id: mixed-line-ending
-          - id: detect-private-key
-
-          - args:
-                - --branch
-                - main
-            id: no-commit-to-branch
-    - repo: https://github.com/Yelp/detect-secrets
-      rev: v1.5.0
-      hooks:
-          - id: detect-secrets
-            args: [--baseline, .secrets.baseline]
-            exclude: package.lock.json|yarn.lock|pnpm-lock.yaml
-
-    - repo: https://github.com/compilerla/conventional-pre-commit
-      rev: v4.4.0
-      hooks:
-          - id: conventional-pre-commit
-            stages: [commit-msg]
-            args: [--strict, --force-scope, feat, fix, chore, docs, refactor, test, ci, build, perf]
-
-    - repo: https://github.com/adrienverge/yamllint
-      rev: v1.38.0
-      hooks:
-          - id: yamllint
-            args: [-d, '{extends: default, rules: {line-length: disable, document-start: disable}}']
-
-    - repo: https://github.com/rhysd/actionlint
-      rev: v1.7.12
-      hooks:
-          - id: actionlint
-            files: ^\.github/workflows/.*\.ya?ml$
-
-    - repo: https://github.com/chrysa/pre-commit-tools
-      rev: v0.1.1-94
-      hooks:
-          - id: makefile-check
-          - id: adr-gate
-          - id: console-log-detection
-          - id: console-debug-detection
-          - id: no-console-warn
-          - id: ts-unreachable-code
-          - id: regression-gate
-            stages: [pre-push]
-          - exclude: ^(\.github/|workflows/|templates/)
-            id: yaml-sorter
-          - id: json-sorter
-          - id: env-file-check
-          - id: env-example-sync
-          - id: react-console-error-detection
-          - id: import-no-relative-parent
-  # --- react (React repos only — remove if not applicable) ---
-    - repo: https://github.com/igorshubovych/markdownlint-cli
-      rev: v0.49.0
-      hooks:
-          - args:
-                - --fix
-            id: markdownlint
-            stages:
-                - manual
-    - repo: https://github.com/gitleaks/gitleaks
-      rev: v8.30.1
-      hooks:
-          - id: gitleaks
+- repo: https://github.com/pre-commit/pre-commit-hooks
+  rev: v6.0.0
+  hooks:
+  - id: trailing-whitespace
+  - id: end-of-file-fixer
+  - id: check-yaml
+  - id: check-json
+  - id: check-toml
+  - id: check-added-large-files
+    args:
+    - --maxkb=1024
+  - id: check-merge-conflict
+  - id: check-case-conflict
+  - id: mixed-line-ending
+  - id: detect-private-key
+  - args:
+    - --branch
+    - main
+    id: no-commit-to-branch
+- repo: https://github.com/Yelp/detect-secrets
+  rev: v1.5.0
+  hooks:
+  - id: detect-secrets
+    args:
+    - --baseline
+    - .secrets.baseline
+    exclude: package.lock.json|yarn.lock|pnpm-lock.yaml
+- repo: https://github.com/compilerla/conventional-pre-commit
+  rev: v4.4.0
+  hooks:
+  - id: conventional-pre-commit
+    stages:
+    - commit-msg
+    args:
+    - --strict
+    - --force-scope
+    - feat
+    - fix
+    - chore
+    - docs
+    - refactor
+    - test
+    - ci
+    - build
+    - perf
+- repo: https://github.com/adrienverge/yamllint
+  rev: v1.38.0
+  hooks:
+  - id: yamllint
+    args:
+    - -d
+    - '{extends: default, rules: {line-length: disable, document-start: disable}}'
+- repo: https://github.com/rhysd/actionlint
+  rev: v1.7.12
+  hooks:
+  - id: actionlint
+    files: ^\.github/workflows/.*\.ya?ml$
+- repo: https://github.com/chrysa/pre-commit-tools
+  rev: v0.1.1-94
+  hooks:
+  - id: makefile-check
+  - id: adr-gate
+  - id: console-log-detection
+  - id: console-debug-detection
+  - id: no-console-warn
+  - id: ts-unreachable-code
+  - id: regression-gate
+    stages:
+    - pre-push
+  - exclude: ^(\.github/|workflows/|templates/)
+    id: yaml-sorter
+  - id: json-sorter
+  - id: env-file-check
+  - id: env-example-sync
+  - id: react-console-error-detection
+  - id: import-no-relative-parent
+- repo: https://github.com/igorshubovych/markdownlint-cli
+  rev: v0.49.0
+  hooks:
+  - args:
+    - --fix
+    id: markdownlint
+    stages:
+    - manual
+- repo: https://github.com/gitleaks/gitleaks
+  rev: v8.30.1
+  hooks:
+  - id: gitleaks
+- repo: local
+  hooks:
+  - id: gitversion-canonical-drift
+    name: GitVersion.yml canonical drift
+    entry: scripts/check-canonical-drift.sh GitVersion.yml templates/GitVersion.yml
+    language: system
+    pass_filenames: false
+    files: ^(GitVersion\.yml|templates/GitVersion\.yml)$
+  - id: cliff-canonical-drift
+    name: cliff.toml canonical drift
+    entry: scripts/check-canonical-drift.sh cliff.toml templates/cliff.toml
+    language: system
+    pass_filenames: false
+    files: ^(cliff\.toml|templates/cliff\.toml)$
