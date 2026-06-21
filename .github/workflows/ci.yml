@@ -83,7 +83,7 @@ jobs:
               with:
                   sonar-token: ${{ secrets.SONAR_TOKEN }}
                   github-token: ${{ secrets.GITHUB_TOKEN }}
-                  project-key: chrysa_django-query-optimizer-vscode
+                  project-key: chrysa_target
                   organization: chrysa
-                  project-name: django-query-optimizer-vscode
+                  project-name: target
                   sources: src
