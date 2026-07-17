@@ -38,7 +38,7 @@
     "@types/mocha": "^10.0.10",
     "@types/node": "^26.1.1",
     "@types/vscode": "^1.125.0",
-    "@typescript-eslint/eslint-plugin": "^8.62.1",
+    "@typescript-eslint/eslint-plugin": "^8.63.0",
     "@typescript-eslint/parser": "^8.0.0",
     "@vscode/test-cli": "^0.0.15",
     "@vscode/test-electron": "^3.0.0",
@@ -46,7 +46,7 @@
     "c8": "^11.0.0",
     "eslint": "^10.6.0",
     "mocha": "^11.7.5",
-    "typescript": "^6.0.3"
+    "typescript": "^7.0.2"
   },
   "displayName": "Django Query Optimizer",
   "engines": {
