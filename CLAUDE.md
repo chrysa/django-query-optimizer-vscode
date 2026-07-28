@@ -10,10 +10,7 @@
 
 ## Conventions
 
-- Language: English
-- Commits: Conventional Commits
-- Branch naming: `feat/`, `fix/`, `chore/`, `docs/`, `ci/`
-- Default branch: `main`
+- Branch naming: `feat/`, `fix/`, `chore/`, `docs/`, `ci/`. Default branch: `main`.
 
 ## Setup
 
