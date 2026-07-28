@@ -54,19 +54,19 @@ jobs:
         name: Semantic Release
 
         steps:
-            - uses: actions/checkout@v6.0.3
+            - uses: actions/checkout@v7.0.1
               with:
                   fetch-depth: 0
                   token: ${{ secrets.RELEASE_TOKEN || secrets.GITHUB_TOKEN }}
 
             - name: Install GitVersion
-              uses: gittools/actions/gitversion/setup@v4
+              uses: gittools/actions/gitversion/setup@v4.7.0
               with:
                   versionSpec: '6.x'
 
             - name: Determine version
               id: gitversion
-              uses: gittools/actions/gitversion/execute@v4
+              uses: gittools/actions/gitversion/execute@v4.7.0
 
             - name: Install git-cliff
               uses: taiki-e/install-action@git-cliff
@@ -91,7 +91,7 @@ jobs:
 
             - name: Create GitHub Release
               if: ${{ inputs.create-github-release }}
-              uses: softprops/action-gh-release@v3
+              uses: softprops/action-gh-release@v3.0.2
               with:
                   tag_name: ${{ steps.changelog.outputs.version }}
                   name: Release ${{ steps.changelog.outputs.version }}
