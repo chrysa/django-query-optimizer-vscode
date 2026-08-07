@@ -106,10 +106,16 @@ function resolveUri(
     return uri;
   }
 
-  // Expand a named base ID if it maps to an absolute URI
-  if (uriBaseId && originalUriBaseIds?.[uriBaseId]?.uri) {
-    const base = originalUriBaseIds[uriBaseId].uri!;
-    return vscode.Uri.file(path.resolve(base.replace(/^file:\/\//, ""), uri)).toString();
+  // Expand a named base ID if it maps to a URI
+  const namedBase = uriBaseId ? originalUriBaseIds?.[uriBaseId]?.uri : undefined;
+  if (namedBase) {
+    const basePath = namedBase.replace(/^file:\/\//, "");
+    // A relative base URI is anchored to the SARIF file's directory (falling back
+    // to the workspace root) so it never resolves against process.cwd().
+    const absoluteBase = path.isAbsolute(basePath)
+      ? basePath
+      : path.resolve(workspaceRoot ?? sarifFileDir, basePath);
+    return vscode.Uri.file(path.resolve(absoluteBase, uri)).toString();
   }
 
   // %SRCROOT% → workspace root (django-query-optimizer convention)
@@ -161,7 +167,9 @@ export function parseSarif(
         const range = new vscode.Range(0, 0, 0, 0);
         const diag = new vscode.Diagnostic(range, message, severity);
         diag.source = "django-query-optimizer";
-        diag.code = result.ruleId;
+        if (result.ruleId !== undefined) {
+          diag.code = result.ruleId;
+        }
         findings.push({ fileUri: vscode.Uri.file(sarifFilePath).toString(), diagnostic: diag });
         continue;
       }
@@ -177,7 +185,9 @@ export function parseSarif(
       const range = toRange(location?.region);
       const diag = new vscode.Diagnostic(range, message, severity);
       diag.source = "django-query-optimizer";
-      diag.code = result.ruleId;
+      if (result.ruleId !== undefined) {
+        diag.code = result.ruleId;
+      }
 
       findings.push({ fileUri, diagnostic: diag });
     }
@@ -285,7 +295,7 @@ class SarifWatcher implements vscode.Disposable {
     this._disposables.push(
       this._watcher.onDidCreate((uri) => this._onSarifChange(uri)),
       this._watcher.onDidChange((uri) => this._onSarifChange(uri)),
-      this._watcher.onDidDelete(() => this._onSarifDelete()),
+      this._watcher.onDidDelete((uri) => this._onSarifDelete(uri)),
     );
     // Initial load of existing files
     void this._loadAll(pattern);
@@ -293,9 +303,6 @@ class SarifWatcher implements vscode.Disposable {
 
   private async _loadAll(pattern: string): Promise<void> {
     const files = await vscode.workspace.findFiles(pattern);
-    if (files.length === 0) {
-      return;
-    }
     const allFindings: ParsedFinding[] = [];
     for (const uri of files) {
       allFindings.push(...(await this._parseSarifFile(uri)));
@@ -311,10 +318,13 @@ class SarifWatcher implements vscode.Disposable {
     await this._loadAll(pattern);
   }
 
-  private _onSarifDelete(): void {
-    this._hub.clear();
-    this._statusBar.update(0);
-    this._outputChannel.appendLine("[DQO] SARIF file deleted — diagnostics cleared");
+  private async _onSarifDelete(uri: vscode.Uri): Promise<void> {
+    // A single deleted file must not wipe diagnostics from the other watched
+    // SARIF reports: re-scan the remaining files and republish from them.
+    this._outputChannel.appendLine(`[DQO] SARIF file deleted (${uri.fsPath}) — rescanning`);
+    this._statusBar.update(0, true);
+    await this._loadAll(this._currentPattern());
+    this._statusBar.update(this._hub.count);
   }
 
   private async _parseSarifFile(uri: vscode.Uri): Promise<ParsedFinding[]> {

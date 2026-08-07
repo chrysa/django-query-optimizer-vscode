@@ -20,8 +20,9 @@ async function waitFor(
 }
 
 function modelsUri(): vscode.Uri {
-  const root = vscode.workspace.workspaceFolders![0].uri.fsPath;
-  return vscode.Uri.file(path.join(root, "models.py"));
+  const folder = vscode.workspace.workspaceFolders?.[0];
+  assert.ok(folder, "no workspace folder open");
+  return vscode.Uri.file(path.join(folder.uri.fsPath, "models.py"));
 }
 
 function diagnosticsForModels(): vscode.Diagnostic[] {
