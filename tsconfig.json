@@ -1,16 +1,22 @@
 {
   "compilerOptions": {
     "esModuleInterop": true,
+    "exactOptionalPropertyTypes": true,
+    "isolatedModules": true,
     "lib": [
       "ES2022"
     ],
     "module": "commonjs",
+    "noImplicitOverride": true,
+    "noImplicitReturns": true,
+    "noUncheckedIndexedAccess": true,
     "outDir": "./out",
     "rootDir": "./",
     "skipLibCheck": true,
     "sourceMap": true,
     "strict": true,
     "target": "ES2022",
+    "useUnknownInCatchVariables": true,
     "types": [
       "node",
       "mocha"
