@@ -56,7 +56,7 @@ suite("parseSarif", () => {
     ]);
     const findings = parseSarif(sarif, SARIF_FILE, WORKSPACE_ROOT);
     assert.strictEqual(findings.length, 1);
-    assert.strictEqual(findings[0].diagnostic.severity, vscode.DiagnosticSeverity.Error);
+    assert.strictEqual(findings[0]!.diagnostic.severity, vscode.DiagnosticSeverity.Error);
   });
 
   test("maps warning level to DiagnosticSeverity.Warning", () => {
@@ -76,7 +76,7 @@ suite("parseSarif", () => {
       },
     ]);
     const findings = parseSarif(sarif, SARIF_FILE, WORKSPACE_ROOT);
-    assert.strictEqual(findings[0].diagnostic.severity, vscode.DiagnosticSeverity.Warning);
+    assert.strictEqual(findings[0]!.diagnostic.severity, vscode.DiagnosticSeverity.Warning);
   });
 
   test("maps note level to DiagnosticSeverity.Information", () => {
@@ -88,13 +88,13 @@ suite("parseSarif", () => {
       },
     ]);
     const findings = parseSarif(sarif, SARIF_FILE, WORKSPACE_ROOT);
-    assert.strictEqual(findings[0].diagnostic.severity, vscode.DiagnosticSeverity.Information);
+    assert.strictEqual(findings[0]!.diagnostic.severity, vscode.DiagnosticSeverity.Information);
   });
 
   test("defaults to Warning for unknown level", () => {
     const sarif = makeSarif([{ ruleId: "x", level: "unknown_level", message: { text: "msg" } }]);
     const findings = parseSarif(sarif, SARIF_FILE, WORKSPACE_ROOT);
-    assert.strictEqual(findings[0].diagnostic.severity, vscode.DiagnosticSeverity.Warning);
+    assert.strictEqual(findings[0]!.diagnostic.severity, vscode.DiagnosticSeverity.Warning);
   });
 
   test("resolves %SRCROOT% URI against workspace root", () => {
@@ -114,7 +114,7 @@ suite("parseSarif", () => {
       },
     ]);
     const findings = parseSarif(sarif, SARIF_FILE, WORKSPACE_ROOT);
-    assert.ok(findings[0].fileUri.includes("api/views.py"), `URI: ${findings[0].fileUri}`);
+    assert.ok(findings[0]!.fileUri.includes("api/views.py"), `URI: ${findings[0]!.fileUri}`);
   });
 
   test("resolves relative URI against SARIF file directory", () => {
@@ -134,26 +134,26 @@ suite("parseSarif", () => {
       },
     ]);
     const findings = parseSarif(sarif, SARIF_FILE, WORKSPACE_ROOT);
-    assert.ok(findings[0].fileUri.includes("app/models.py"));
+    assert.ok(findings[0]!.fileUri.includes("app/models.py"));
   });
 
   test("result with no location attaches diagnostic to the SARIF file", () => {
     const sarif = makeSarif([{ ruleId: "n_plus_1", level: "error", message: { text: "N+1" } }]);
     const findings = parseSarif(sarif, SARIF_FILE, WORKSPACE_ROOT);
     assert.strictEqual(findings.length, 1);
-    assert.ok(findings[0].fileUri.includes("query-results.sarif"));
+    assert.ok(findings[0]!.fileUri.includes("query-results.sarif"));
   });
 
   test("sets diagnostic.source to 'django-query-optimizer'", () => {
     const sarif = makeSarif([{ ruleId: "slow_query", level: "warning", message: { text: "Slow" } }]);
     const findings = parseSarif(sarif, SARIF_FILE, WORKSPACE_ROOT);
-    assert.strictEqual(findings[0].diagnostic.source, "django-query-optimizer");
+    assert.strictEqual(findings[0]!.diagnostic.source, "django-query-optimizer");
   });
 
   test("sets diagnostic.code to ruleId", () => {
     const sarif = makeSarif([{ ruleId: "missing_select_related", level: "warning", message: { text: "FK" } }]);
     const findings = parseSarif(sarif, SARIF_FILE, WORKSPACE_ROOT);
-    assert.strictEqual(findings[0].diagnostic.code, "missing_select_related");
+    assert.strictEqual(findings[0]!.diagnostic.code, "missing_select_related");
   });
 
   test("builds correct range from SARIF region (1-based → 0-based)", () => {
@@ -173,7 +173,7 @@ suite("parseSarif", () => {
       },
     ]);
     const findings = parseSarif(sarif, SARIF_FILE, WORKSPACE_ROOT);
-    const range = findings[0].diagnostic.range;
+    const range = findings[0]!.diagnostic.range;
     assert.strictEqual(range.start.line, 9);
     assert.strictEqual(range.start.character, 4);
     assert.strictEqual(range.end.line, 9);
