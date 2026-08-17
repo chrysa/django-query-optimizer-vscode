@@ -43,3 +43,6 @@ quality-gate-verify: lint typecheck compile  ## CI no-regression gate (display-f
 	@# provides xvfb. The no-regression gate job has no display, so it verifies the
 	@# display-free quality signals only: lint clean, types clean, build succeeds.
 	@echo "Quality gate verified: lint + typecheck + compile passed"
+
+.PHONY: ci
+ci: lint typecheck test  ## CI: run all checks (lint + typecheck + test)
