@@ -1,0 +1,43 @@
+{
+  "adrs": [],
+  "contracts": [
+    "standards"
+  ],
+  "ddd_level": "(not available)",
+  "dependencies": {
+    "node": [
+      "@types/mocha",
+      "@types/node",
+      "@types/vscode",
+      "@typescript-eslint/eslint-plugin",
+      "@typescript-eslint/parser",
+      "@vscode/test-cli",
+      "@vscode/test-electron",
+      "@vscode/vsce",
+      "c8",
+      "eslint",
+      "mocha",
+      "typescript"
+    ]
+  },
+  "depends_on_shared_standards": true,
+  "description": "Displays ORM optimization findings from django-query-optimizer SARIF reports as VS Code diagnostics.",
+  "entry_points": [
+    "./out/src/extension.js"
+  ],
+  "key_directories": [
+    ".claude",
+    ".github",
+    ".vscode",
+    "docs",
+    "legal",
+    "media",
+    "scripts",
+    "src",
+    "standards",
+    "test"
+  ],
+  "name": "django-query-optimizer",
+  "profiles": [],
+  "schema": "chrysa.context-map/1"
+}
