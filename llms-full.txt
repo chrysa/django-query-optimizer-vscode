@@ -109,7 +109,6 @@ Displays ORM optimization findings from django-query-optimizer SARIF reports as 
     action-check.yml
     approved-label.yml
     auto-assign.yml
-    auto-update-pre-commit.yml
     ci.yml
     dependabot-auto-merge.yml
     detect-conflicts.yml
@@ -157,6 +156,7 @@ package-lock.json
 package.json
 pyproject.toml
 scripts/
+  gen_context_files.py
   quality_gate.py
 sonar-project.properties
 src/
@@ -202,5 +202,6 @@ version: 0.1.0
 ## Modules
 
 .claude/ape/ape_hook.py
+scripts/gen_context_files.py — Generate the standardised per-repo context files from the repo's own content.
 scripts/quality_gate.py
 test/fixtures/models.py
