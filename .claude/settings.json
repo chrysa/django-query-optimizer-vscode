@@ -15,6 +15,12 @@
         "matcher": "Write|Edit|MultiEdit",
         "name": "verifiable-thresholds",
         "timeout": 10000
+      },
+      {
+        "command": "sh -c 'case \"$CLAUDE_TOOL_INPUT_FILE_PATH\" in */src/*.ts) npx tsc --noEmit && npm run lint ;; esac'",
+        "matcher": "Write|Edit|MultiEdit",
+        "name": "src-lint-typecheck",
+        "timeout": 60000
       }
     ],
     "PreCompact": [
