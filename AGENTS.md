@@ -21,8 +21,7 @@ declarative replacement for per-project Python scaffolding scripts.
 ## Always do
 
 - Run tests, lint, type-check, and build through **Docker or pre-commit only** —
-  never on the host. Use `make docker-test`, `make lint`, `make typecheck`,
-  `make test-cov`.
+  never on the host. Use `make test`, `make lint`, `make typecheck`.
 - Keep code, comments, docs, commits, and PRs in **English**.
 - Conventional commits (feat/fix/chore/docs/refactor/test/build/ci) — the changelog
   and version bump are derived from them (`cliff.toml`, `GitVersion.yml`).
