@@ -39,7 +39,9 @@ Displays ORM optimization findings from django-query-optimizer SARIF reports as 
   hooks/
     check-no-env-files.cjs
     circuit-breaker.cjs
+    claude-config-drift.cjs
     frustration-detection.cjs
+    graphify-auto-update.cjs
     secret-scanner.cjs
     verifiable-thresholds.cjs
   rules/
@@ -134,6 +136,7 @@ Displays ORM optimization findings from django-query-optimizer SARIF reports as 
   tasks.json
 .vscodeignore
 AGENTS.md
+ARCHITECTURE.md
 CHANGELOG.md
 CLAUDE.md
 CODEOWNERS
@@ -167,6 +170,7 @@ standards/
     README.md
     accessibility.md
     agents.md
+    ai-orchestration.md
     api.md
     architecture.md
     backend-python.md
