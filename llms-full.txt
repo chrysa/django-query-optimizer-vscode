@@ -84,6 +84,8 @@ Displays ORM optimization findings from django-query-optimizer SARIF reports as 
       SKILL.md
     plan/
       SKILL.md
+    rollout-status/
+      SKILL.md
     spec/
       SKILL.md
     standards-authoring/
@@ -96,6 +98,7 @@ Displays ORM optimization findings from django-query-optimizer SARIF reports as 
       SKILL.md
   thresholds.json
 .editorconfig
+.env.example
 .gitattributes
 .github/
   CODEOWNERS
