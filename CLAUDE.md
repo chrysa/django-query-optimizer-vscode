@@ -10,6 +10,15 @@
 **Stack:** TypeScript + VS Code Extension
 **Purpose:** VS Code extension for django-query-optimizer
 
+## Documentation map
+
+- `README.md` — install, usage, settings, commands. `ARCHITECTURE.md` — components & data flow.
+- `REQUIREMENTS.md` — REQ-PROD / REQ-TECH matrix (evidence-tagged).
+- `DECISIONS.md` — local ADRs. `CONSTRAINTS.md` — binding limits.
+- `TESTING.md` — test layout, commands, CI wiring. `SECURITY.md` — attack surface & secret hygiene.
+- `REVIEW.md` — doc audit: contradictions & debt (read before editing CONTRIBUTING/ci.yml).
+- `CONTRIBUTING.md`, `AGENTS.md`, `CHANGELOG.md` (cliff-generated), `handover.md` (generated — do not edit).
+
 ## Conventions
 
 - Branch naming: `feat/`, `fix/`, `chore/`, `docs/`, `ci/`. Default branch: `main`.
