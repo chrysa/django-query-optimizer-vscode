@@ -156,7 +156,7 @@
       "Bash(rtk ruff check *)",
       "Bash(rtk ruff format *)",
       "Bash(rtk mypy *)",
-      "Bash(npm test *)",
+      "Bash(rtk npm test *)",
       "Bash(rtk npm run lint *)",
       "Bash(rtk npm run typecheck *)",
       "Bash(rtk npx tsc --noEmit *)",
