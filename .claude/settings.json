@@ -1,16 +1,21 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-settings.json",
   "_comment": "Claude Code settings template — copy to .claude/settings.json and customize",
+  "attribution": {
+    "commit": "",
+    "pr": ""
+  },
   "autoCompact": true,
   "autoCompactThreshold": 0.85,
+  "effortLevel": "low",
   "hooks": {
     "Notification": [
       {
         "hooks": [
           {
-            "type": "command",
             "command": "notify-send 'Claude Code' '$CLAUDE_NOTIFICATION'",
-            "name": "notify-user-input"
+            "name": "notify-user-input",
+            "type": "command"
           }
         ]
       }
@@ -19,47 +24,47 @@
       {
         "hooks": [
           {
-            "type": "command",
             "command": "sh -c 'f=\"$CLAUDE_PROJECT_DIR/.claude/hooks/verifiable-thresholds.cjs\"; [ ! -f \"$f\" ] || node \"$f\"'",
             "matcher": "Write|Edit|MultiEdit",
             "name": "verifiable-thresholds",
-            "timeout": 10000
+            "timeout": 10000,
+            "type": "command"
           }
         ]
       },
       {
         "hooks": [
           {
-            "type": "command",
             "command": "sh -c 'case \"$CLAUDE_TOOL_INPUT_FILE_PATH\" in */src/*.ts) npx tsc --noEmit && npm run lint ;; esac'",
             "matcher": "Write|Edit|MultiEdit",
             "name": "src-lint-typecheck",
-            "timeout": 60000
+            "timeout": 60000,
+            "type": "command"
           }
         ]
       },
       {
-        "matcher": "Edit|Write",
         "hooks": [
           {
-            "type": "command",
-            "command": "python3",
             "args": [
               "${CLAUDE_PROJECT_DIR}/.claude/hooks/format.py"
             ],
-            "timeout": 30
+            "command": "python3",
+            "timeout": 30,
+            "type": "command"
           }
-        ]
+        ],
+        "matcher": "Edit|Write"
       }
     ],
     "PreCompact": [
       {
         "hooks": [
           {
-            "type": "command",
             "command": "~/.claude/hooks/pre-compact.sh",
             "name": "pre-compact",
-            "timeout": 10000
+            "timeout": 10000,
+            "type": "command"
           }
         ]
       }
@@ -67,9 +72,6 @@
     "PreToolUse": [
       {
         "command": "sh -c 'f=\"$CLAUDE_PROJECT_DIR/.claude/hooks/secret-scanner.cjs\"; [ ! -f \"$f\" ] || node \"$f\"'",
-        "matcher": "Bash",
-        "name": "secret-scanner",
-        "timeout": 10000,
         "hooks": [
           {
             "command": "sh -c 'f=\"$CLAUDE_PROJECT_DIR/.claude/hooks/check-no-env-files.cjs\"; [ ! -f \"$f\" ] || node \"$f\"'",
@@ -77,13 +79,13 @@
             "timeout": 5000,
             "type": "command"
           }
-        ]
+        ],
+        "matcher": "Bash",
+        "name": "secret-scanner",
+        "timeout": 10000
       },
       {
         "command": "sh -c 'f=\"$CLAUDE_PROJECT_DIR/.claude/hooks/circuit-breaker.cjs\"; [ ! -f \"$f\" ] || node \"$f\"'",
-        "matcher": "Bash",
-        "name": "circuit-breaker",
-        "timeout": 5000,
         "hooks": [
           {
             "command": "sh -c 'f=\"$CLAUDE_PROJECT_DIR/.claude/hooks/check-no-env-files.cjs\"; [ ! -f \"$f\" ] || node \"$f\"'",
@@ -91,14 +93,16 @@
             "timeout": 5000,
             "type": "command"
           }
-        ]
+        ],
+        "matcher": "Bash",
+        "name": "circuit-breaker",
+        "timeout": 5000
       },
       {
-        "matcher": "Bash",
         "hooks": [
           {
-            "type": "command",
-            "command": "CMD=$(python3 -c \"import json,sys; d=json.load(sys.stdin); print(d.get('tool_input',d).get('command',''))\" 2>/dev/null || true); case \"$CMD\" in *grep*|*rg\\ *|*ripgrep*|*find\\ *|*fd\\ *|*ack\\ *|*ag\\ *)   [ -f graphify-out/graph.json ] &&   echo '{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"additionalContext\":\"graphify: knowledge graph at graphify-out/. For focused questions, run `graphify query \\\"<question>\\\"` (scoped subgraph, usually much smaller than GRAPH_REPORT.md) instead of grepping raw files. Read GRAPH_REPORT.md only for broad architecture context.\"}}'   || true ;; esac"
+            "command": "CMD=$(python3 -c \"import json,sys; d=json.load(sys.stdin); print(d.get('tool_input',d).get('command',''))\" 2>/dev/null || true); case \"$CMD\" in *grep*|*rg\\ *|*ripgrep*|*find\\ *|*fd\\ *|*ack\\ *|*ag\\ *)   [ -f graphify-out/graph.json ] &&   echo '{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"additionalContext\":\"graphify: knowledge graph at graphify-out/. For focused questions, run `graphify query \\\"<question>\\\"` (scoped subgraph, usually much smaller than GRAPH_REPORT.md) instead of grepping raw files. Read GRAPH_REPORT.md only for broad architecture context.\"}}'   || true ;; esac",
+            "type": "command"
           },
           {
             "command": "sh -c 'f=\"$CLAUDE_PROJECT_DIR/.claude/hooks/check-no-env-files.cjs\"; [ ! -f \"$f\" ] || node \"$f\"'",
@@ -106,31 +110,33 @@
             "timeout": 5000,
             "type": "command"
           }
-        ]
+        ],
+        "matcher": "Bash"
       }
     ],
     "UserPromptSubmit": [
       {
         "hooks": [
           {
-            "type": "command",
             "command": "sh -c 'f=\"$CLAUDE_PROJECT_DIR/.claude/hooks/frustration-detection.cjs\"; [ ! -f \"$f\" ] || node \"$f\"'",
             "matcher": "*",
             "name": "frustration-detection",
-            "timeout": 5000
+            "timeout": 5000,
+            "type": "command"
           }
         ]
       },
       {
         "hooks": [
           {
-            "type": "command",
-            "command": "sh -c 'f=\"$CLAUDE_PROJECT_DIR/.claude/ape/ape_hook.py\"; s=\"$CLAUDE_PROJECT_DIR/.claude/ape/ape-transform-v2.md\"; [ ! -f \"$f\" ] || python3 \"$f\" --spec \"$s\"'"
+            "command": "sh -c 'f=\"$CLAUDE_PROJECT_DIR/.claude/ape/ape_hook.py\"; s=\"$CLAUDE_PROJECT_DIR/.claude/ape/ape-transform-v2.md\"; [ ! -f \"$f\" ] || python3 \"$f\" --spec \"$s\"'",
+            "type": "command"
           }
         ]
       }
     ]
   },
+  "model": "haiku",
   "permissions": {
     "allow": [
       "Bash(rtk git diff:*)",
@@ -238,11 +244,5 @@
       "Read(**/*.min.js)",
       "Read(**/*.map)"
     ]
-  },
-  "attribution": {
-    "commit": "",
-    "pr": ""
-  },
-  "model": "haiku",
-  "effortLevel": "low"
+  }
 }
