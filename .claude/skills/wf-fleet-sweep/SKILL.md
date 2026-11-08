@@ -1,4 +1,5 @@
 ---
+name: wf-fleet-sweep
 description: Read-only fleet sweep (deps, standards drift, open PRs) with a prioritised action list
 argument-hint: [repo paths… | all]
 ---

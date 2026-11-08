@@ -1,6 +1,8 @@
 ---
+name: wf-release-lib
 description: Release a shared library safely (consumer contract tests → bump → consumer pin PRs)
 argument-hint: <library repo> <new version>
+disable-model-invocation: true
 ---
 
 # Command: Library release workflow (W7)

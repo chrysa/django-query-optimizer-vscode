@@ -1,4 +1,5 @@
 ---
+name: wf-feature
 description: Deliver a feature end-to-end (spec → plan → human gate → implement → verify → review)
 argument-hint: <feature-slug>
 ---

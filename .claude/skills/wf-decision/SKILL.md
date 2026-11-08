@@ -1,4 +1,5 @@
 ---
+name: wf-decision
 description: Make and record a structural decision (council → ADR consistency → falsifiable ADR)
 argument-hint: <question to decide>
 ---
