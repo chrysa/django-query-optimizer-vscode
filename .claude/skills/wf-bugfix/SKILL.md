@@ -1,4 +1,5 @@
 ---
+name: wf-bugfix
 description: Fix a bug from symptom to PR (root cause first, red repro test, fix, verify, review)
 argument-hint: <symptom | failing test | sentry issue id>
 ---

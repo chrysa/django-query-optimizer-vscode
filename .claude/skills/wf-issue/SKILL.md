@@ -1,4 +1,5 @@
 ---
+name: wf-issue
 description: Take a GitHub issue end-to-end — triage, then route to the feature or bugfix workflow
 argument-hint: <issue-number>
 ---

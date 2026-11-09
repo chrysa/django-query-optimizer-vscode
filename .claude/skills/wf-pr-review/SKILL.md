@@ -1,4 +1,5 @@
 ---
+name: wf-pr-review
 description: Multi-specialist PR review with adversarial verification and a single verdict
 argument-hint: <pr-number>
 ---
