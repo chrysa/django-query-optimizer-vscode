@@ -127,14 +127,43 @@ function resolveUri(
   return vscode.Uri.file(path.resolve(sarifFileDir, uri)).toString();
 }
 
+/** Raised by {@link parseSarifStrict} when the text is not a usable SARIF document. */
+export class SarifParseError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "SarifParseError";
+  }
+}
+
+/**
+ * Lenient wrapper around {@link parseSarifStrict}: an invalid document yields no
+ * findings. Callers that must tell "no findings" from "unreadable file" (the
+ * status bar) use {@link parseSarifStrict} instead.
+ */
+export function parseSarif(
+  json: string,
+  sarifFilePath: string,
+  workspaceRoot: string | undefined,
+): ParsedFinding[] {
+  try {
+    return parseSarifStrict(json, sarifFilePath, workspaceRoot);
+  } catch (err) {
+    if (err instanceof SarifParseError) {
+      return [];
+    }
+    throw err;
+  }
+}
+
 /**
  * Parse a SARIF 2.1.0 JSON string into a list of {@link ParsedFinding}s.
  *
  * @param json         Raw SARIF JSON text.
  * @param sarifFilePath Absolute path to the SARIF file (used for relative URI resolution).
  * @param workspaceRoot Absolute path to the workspace root (used for %SRCROOT% resolution).
+ * @throws {SarifParseError} when the text is not valid JSON or has no `runs` array.
  */
-export function parseSarif(
+export function parseSarifStrict(
   json: string,
   sarifFilePath: string,
   workspaceRoot: string | undefined,
@@ -142,12 +171,12 @@ export function parseSarif(
   let doc: SarifDocument;
   try {
     doc = JSON.parse(json) as SarifDocument;
-  } catch {
-    return [];
+  } catch (err) {
+    throw new SarifParseError(`invalid JSON (${String(err)})`);
   }
 
   if (!Array.isArray(doc.runs)) {
-    return [];
+    throw new SarifParseError('missing "runs" array');
   }
 
   const sarifDir = path.dirname(sarifFilePath);
@@ -241,20 +270,30 @@ class DiagnosticsHub implements vscode.Disposable {
 // ── Status bar ────────────────────────────────────────────────────────────────
 
 class QueryOptimizerStatusBar implements vscode.Disposable {
+  private static readonly DEFAULT_TOOLTIP = "Django Query Optimizer — click to reload SARIF files";
   private readonly _item: vscode.StatusBarItem;
 
   constructor() {
     this._item = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 100);
     this._item.command = "djangoQueryOptimizer.reload";
-    this._item.tooltip = "Django Query Optimizer — click to reload SARIF files";
+    this._item.tooltip = QueryOptimizerStatusBar.DEFAULT_TOOLTIP;
   }
 
-  update(count: number, loading = false): void {
+  update(count: number, loading = false, errors: readonly string[] = []): void {
     if (loading) {
       this._item.text = "$(loading~spin) DQO";
       this._item.show();
       return;
     }
+    if (errors.length > 0) {
+      // Never show a green check when a report could not be read: that would be a
+      // false "all clear".
+      this._item.text = `$(error) DQO: ${errors.length} invalid SARIF`;
+      this._item.tooltip = `Django Query Optimizer — could not read:\n${errors.join("\n")}\nClick to reload SARIF files`;
+      this._item.show();
+      return;
+    }
+    this._item.tooltip = QueryOptimizerStatusBar.DEFAULT_TOOLTIP;
     if (count === 0) {
       this._item.text = "$(check) DQO";
     } else {
@@ -277,6 +316,7 @@ class QueryOptimizerStatusBar implements vscode.Disposable {
 class SarifWatcher implements vscode.Disposable {
   private _watcher: vscode.FileSystemWatcher | undefined;
   private readonly _disposables: vscode.Disposable[] = [];
+  private _errors: string[] = [];
 
   constructor(
     private readonly _hub: DiagnosticsHub,
@@ -304,11 +344,16 @@ class SarifWatcher implements vscode.Disposable {
   private async _loadAll(pattern: string): Promise<void> {
     const files = await vscode.workspace.findFiles(pattern);
     const allFindings: ParsedFinding[] = [];
+    this._errors = [];
     for (const uri of files) {
       allFindings.push(...(await this._parseSarifFile(uri)));
     }
     this._hub.publish(allFindings);
-    this._statusBar.update(this._hub.count);
+    this._refreshStatus();
+  }
+
+  private _refreshStatus(): void {
+    this._statusBar.update(this._hub.count, false, this._errors);
   }
 
   private async _onSarifChange(uri: vscode.Uri): Promise<void> {
@@ -324,7 +369,6 @@ class SarifWatcher implements vscode.Disposable {
     this._outputChannel.appendLine(`[DQO] SARIF file deleted (${uri.fsPath}) — rescanning`);
     this._statusBar.update(0, true);
     await this._loadAll(this._currentPattern());
-    this._statusBar.update(this._hub.count);
   }
 
   private async _parseSarifFile(uri: vscode.Uri): Promise<ParsedFinding[]> {
@@ -332,9 +376,10 @@ class SarifWatcher implements vscode.Disposable {
       const bytes = await vscode.workspace.fs.readFile(uri);
       const json = Buffer.from(bytes).toString("utf-8");
       const root = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
-      return parseSarif(json, uri.fsPath, root);
+      return parseSarifStrict(json, uri.fsPath, root);
     } catch (err) {
       this._outputChannel.appendLine(`[DQO] Error reading ${uri.fsPath}: ${String(err)}`);
+      this._errors.push(`${uri.fsPath}: ${err instanceof Error ? err.message : String(err)}`);
       return [];
     }
   }
@@ -348,7 +393,6 @@ class SarifWatcher implements vscode.Disposable {
   async reload(): Promise<void> {
     this._statusBar.update(0, true);
     await this._loadAll(this._currentPattern());
-    this._statusBar.update(this._hub.count);
   }
 
   dispose(): void {
