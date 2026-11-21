@@ -1,7 +1,7 @@
 import * as assert from "assert";
 import * as path from "path";
 import * as vscode from "vscode";
-import { parseSarif } from "../../src/extension";
+import { parseSarif, parseSarifStrict, SarifParseError } from "../../src/extension";
 
 const WORKSPACE_ROOT = "/workspace/myproject";
 const SARIF_FILE = path.join(WORKSPACE_ROOT, "query-results.sarif");
@@ -36,6 +36,21 @@ suite("parseSarif", () => {
   test("returns empty array when runs is missing", () => {
     const findings = parseSarif(JSON.stringify({ version: "2.1.0" }), SARIF_FILE, WORKSPACE_ROOT);
     assert.strictEqual(findings.length, 0);
+  });
+
+  test("parseSarifStrict throws SarifParseError on invalid JSON (no silent all-clear)", () => {
+    assert.throws(() => parseSarifStrict("not json", SARIF_FILE, WORKSPACE_ROOT), SarifParseError);
+  });
+
+  test("parseSarifStrict throws SarifParseError when runs is missing", () => {
+    assert.throws(
+      () => parseSarifStrict(JSON.stringify({ version: "2.1.0" }), SARIF_FILE, WORKSPACE_ROOT),
+      SarifParseError,
+    );
+  });
+
+  test("parseSarifStrict accepts a valid empty SARIF", () => {
+    assert.strictEqual(parseSarifStrict(makeSarif([]), SARIF_FILE, WORKSPACE_ROOT).length, 0);
   });
 
   test("maps error level to DiagnosticSeverity.Error", () => {
